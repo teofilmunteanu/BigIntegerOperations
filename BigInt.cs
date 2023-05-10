@@ -9,15 +9,25 @@ namespace BigIntegerOperations
 
         public BigInt(string? input)
         {
-            if (input == null || input.Length == 0) throw new ArgumentNullException("Invalid input");
+            if (input == null) throw new ArgumentNullException(nameof(input));
 
-            input = Regex.Replace(input, @"\s+|[^0-9-]+", string.Empty);
+            input = Regex.Replace(input, @"\s+", string.Empty);
+
+            if (input.Length == 0) throw new ArgumentNullException("Input can't be null or empty!");
+
 
             if (input.StartsWith("-"))
             {
                 Sign = true;
                 input = input.Substring(1);
             }
+
+            if (Regex.IsMatch(input, "[^0-9]+"))
+            {
+                throw new ArgumentException("Input can only contain 0-9 digits and the \"-\" sign at the beginning!");
+            }
+
+
             input = string.Join("", input.SkipWhile(x => x == '0'));
 
             Value = new byte[input.Length - 1];
