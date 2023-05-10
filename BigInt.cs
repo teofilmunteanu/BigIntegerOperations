@@ -13,7 +13,7 @@ namespace BigIntegerOperations
 
             input = Regex.Replace(input, @"\s+", string.Empty);
 
-            if (input.Length == 0) throw new ArgumentNullException("Input can't be null or empty!");
+            if (input.Length == 0) throw new ArgumentNullException("Input can't be empty!");
 
 
             if (input.StartsWith("-"))
