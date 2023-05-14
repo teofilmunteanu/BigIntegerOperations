@@ -33,5 +33,25 @@ namespace BigIntegerOperations
             Value = new byte[input.Length - 1];
             Value = input.Select(x => (byte)(x - '0')).ToArray();
         }
+        //public BigInt(bool Sign, byte[] Value)
+        //{
+        //    this.Sign = Sign;
+        //    this.Value = Value;
+        //}
+
+        //public static BigInt operator +(BigInt A, BigInt B)
+        //{
+        //    BigInt C = new BigInt("0");
+        //    if (A.Sign == B.Sign)
+        //    {
+        //        C.Sign = A.Sign;
+        //    }
+        //    else
+        //    {
+
+        //    }
+        //    return C;
+        //}
+
     }
 }
