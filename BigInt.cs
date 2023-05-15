@@ -156,6 +156,21 @@ namespace BigIntegerOperations
                         i++;
                     }
                 }
+                int m = 0;
+                while (m < C.Value.Length && C.Value[m] == 0)
+                {
+                    m++;
+                }
+                Console.WriteLine("m = " + m);
+                byte[] vect = new byte[C.Value.Length];
+                Array.Copy(C.Value, m, vect, 0, C.Value.Length - m);
+                Array.Resize(ref vect, C.Value.Length - m);
+                if (vect.Length == 0)
+                {
+                    vect = new byte[1];
+                    vect[0] = 0;
+                }
+                C = new BigInt(C.Sign, vect);
             }
             return C;
         }
