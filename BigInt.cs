@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
@@ -207,6 +208,21 @@ namespace BigIntegerOperations
                 vect[0] = 0;
             }
             return new BigInt(C.Sign,vect);
+        }
+
+
+        public void Show()
+        {
+            String s = new String("");
+            if(this.Sign == true)
+            {
+                s += "-";
+            }
+            for(int i=0;i<this.Value.Length;i++)
+            {
+                s += this.Value[i];
+            }
+            Console.Write(s);
         }
 
     }
