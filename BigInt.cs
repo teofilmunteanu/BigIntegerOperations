@@ -145,15 +145,15 @@ namespace BigIntegerOperations
                     }
                     else
                     {
-                        int j = i+1;
+                        int j = i-1;
                         while (X[j] == 0)
                         {
                             X[j] = 9;
-                            j++;
+                            j--;
                         }
                         X[j] --;
                         X[i] += 10;
-                        i--;
+                        i++;
                     }
                 }
             }
