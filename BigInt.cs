@@ -1,10 +1,13 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BigIntegerOperations
 {
     internal class BigInt
     {
+        const int blockLength = 9;
+        static int w, k, mu;// w = nr of bytes in each block of length blockLength, k = 2^(max number of bits in block)
+
         public bool Sign { get; set; }
         public byte[] Value { get; set; }
 
@@ -34,12 +37,16 @@ namespace BigIntegerOperations
 
             Value = new byte[input.Length - 1];
             Value = input.Select(x => (byte)(x - '0')).ToArray();
+
+            SetModuloConstants();
         }
 
         public BigInt(bool Sign, byte[] Value)
         {
             this.Sign = Sign;
             this.Value = Value;
+
+            SetModuloConstants();
         }
 
         public static BigInt operator +(BigInt A, BigInt B)
@@ -56,19 +63,19 @@ namespace BigIntegerOperations
             A.Value.CopyTo(X, L - A.Value.Length);
             B.Value.CopyTo(Y, L - B.Value.Length);
 
-            BigInt C = new BigInt(false, new byte[L+1]);
+            BigInt C = new BigInt(false, new byte[L + 1]);
 
 
             byte carry = 0;
             if (A.Sign == B.Sign)
             {
                 C.Sign = A.Sign;
-                for(int i = L - 1  ;i >= 0; i--)
+                for (int i = L - 1; i >= 0; i--)
                 {
                     byte digit = (byte)(X[i] + Y[i] + carry);
-                    if(digit > 9)
+                    if (digit > 9)
                     {
-                        carry = (byte)(digit/10);
+                        carry = (byte)(digit / 10);
                         digit -= 10;
                     }
                     else { carry = 0; }
@@ -121,7 +128,7 @@ namespace BigIntegerOperations
                     X = Y;
                     Y = Aux;
                 }
-                else if(A.Value.Length == B.Value.Length)
+                else if (A.Value.Length == B.Value.Length)
                 {
 
                     int k = 0;
@@ -135,10 +142,10 @@ namespace BigIntegerOperations
                         X = Y;
                         Y = Aux;
                     }
-                    
+
                 }
 
-                for(int i = L - 1 ; i >= 0 ; i--)
+                for (int i = L - 1; i >= 0; i--)
                 {
                     if (X[i] >= Y[i])
                     {
@@ -146,13 +153,13 @@ namespace BigIntegerOperations
                     }
                     else
                     {
-                        int j = i-1;
+                        int j = i - 1;
                         while (X[j] == 0)
                         {
                             X[j] = 9;
                             j--;
                         }
-                        X[j] --;
+                        X[j]--;
                         X[i] += 10;
                         i++;
                     }
@@ -178,15 +185,15 @@ namespace BigIntegerOperations
 
         public static BigInt operator *(BigInt A, BigInt B)
         {
-            BigInt C = new BigInt(A.Sign || B.Sign,new byte[A.Value.Length + B.Value.Length]);
-            if(A.Sign == true && B.Sign == true) { C.Sign = false; }
-            for(int i = A.Value.Length - 1; i >= 0; i--)
+            BigInt C = new BigInt(A.Sign || B.Sign, new byte[A.Value.Length + B.Value.Length]);
+            if (A.Sign == true && B.Sign == true) { C.Sign = false; }
+            for (int i = A.Value.Length - 1; i >= 0; i--)
             {
                 byte carry = 0;
                 for (int j = B.Value.Length - 1; j >= 0; j--)
                 {
-                    byte temp =(byte)( A.Value[i] * B.Value[j] + C.Value[i+j+1] + carry);
-                    C.Value[i+j+1] = (byte)(temp % 10);
+                    byte temp = (byte)(A.Value[i] * B.Value[j] + C.Value[i + j + 1] + carry);
+                    C.Value[i + j + 1] = (byte)(temp % 10);
                     carry = (byte)(temp / 10);
                 }
 
@@ -200,25 +207,116 @@ namespace BigIntegerOperations
             }
             byte[] vect = new byte[C.Value.Length];
             vect = C.Value;
-            Array.Copy(vect, k  ,vect, 0,C.Value.Length - k);
+            Array.Copy(vect, k, vect, 0, C.Value.Length - k);
             Array.Resize(ref vect, C.Value.Length - k);
-            if(vect.Length == 0)
+            if (vect.Length == 0)
             {
                 vect = new byte[1];
                 vect[0] = 0;
             }
-            return new BigInt(C.Sign,vect);
+            return new BigInt(C.Sign, vect);
         }
 
+        public static bool operator <(BigInt A, BigInt B)
+        {
+            if (!A.Sign && B.Sign || A.Value.Length > B.Value.Length)
+            {
+                return false;
+            }
+            if (A.Sign && !B.Sign || A.Value.Length < B.Value.Length)
+            {
+                return true;
+            }
+
+            if (!A.Sign)
+            {
+                for (int i = 0; i < A.Value.Length; i++)
+                {
+                    if (A.Value[i] > B.Value[i])
+                    {
+                        return false;
+                    }
+                    if (A.Value[i] < B.Value[i])
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < A.Value.Length; i++)
+                {
+                    if (A.Value[i] > B.Value[i])
+                    {
+                        return true;
+                    }
+                    if (A.Value[i] < B.Value[i])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+
+            return false;
+        }
+
+        //make function to return index where there's difference or -1 if equal
+
+        public static bool operator <=(BigInt A, BigInt B)
+        {
+            //Array.Copy(array, startIndex, array, startIndex, array.Length - startIndex); and give this to <
+        }
+
+        public static bool operator >(BigInt A, BigInt B)
+        {
+            return !(A <= B);
+        }
+
+
+        public static BigInt operator /(BigInt A, BigInt B)
+        {
+            BigInt C = new BigInt("0");
+
+            BigInt R = A;
+
+            while (R >= B)
+            {
+
+            }
+
+            return C;
+        }
+
+        //eventually test with BigInteger.Divide
+        //public static BigInt operator %(BigInt A, BigInt B)
+        //{
+        //    mu = new BigInt(k + "") / B;
+
+        //    for (int i = 0; i < A.Value.Length; i += blockLength)
+        //    {
+        //        for (int j = i; j < i + blockLength && j < A.Value.Length; j++)
+        //        {
+
+        //        }
+        //    }
+        //}
+
+        private void SetModuloConstants()
+        {
+            int bitsRequiredInBlock = 4 * blockLength;//4 = nr bits in decimal digit
+            w = (bitsRequiredInBlock + 7) / 8;
+            k = (int)Math.Pow(2, w * 8);
+        }
 
         public void Show()
         {
             String s = new String("");
-            if(this.Sign == true)
+            if (this.Sign == true)
             {
                 s += "-";
             }
-            for(int i=0;i<this.Value.Length;i++)
+            for (int i = 0; i < this.Value.Length; i++)
             {
                 s += this.Value[i];
             }
