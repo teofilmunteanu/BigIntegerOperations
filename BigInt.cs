@@ -94,6 +94,7 @@ namespace BigIntegerOperations
                 {
                     byte[] vect = new byte[L];
                     Array.Copy(C.Value, 1, vect, 0, L);
+                    if (vect.Length == 0) vect[0] = 0;
                     C = new BigInt(C.Sign, vect);
                 }
 
@@ -112,17 +113,26 @@ namespace BigIntegerOperations
                 else
                 {
                     int k = 0;
-                    while (X[k] == Y[k])
+
+                    while (k < X.Length && X[k] == Y[k] )
                     {
                         k++;
                     }
-                    if (X[k] > Y[k])
+                    if (k < X.Length)
                     {
-                        C.Sign = A.Sign;
-                    }
-                    else
+                        if (X[k] > Y[k])
+                        {
+                            C.Sign = A.Sign;
+                        }
+                        else
+                        {
+                            C.Sign = B.Sign;
+                        }
+                    }else
                     {
-                        C.Sign = B.Sign;
+                        byte[] zero = new byte[1];
+                        zero[0] = 0;
+                        return new BigInt(false, zero);
                     }
                 }
 
