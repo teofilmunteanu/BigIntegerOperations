@@ -1,15 +1,19 @@
 ﻿using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BigIntegerOperations
 {
     internal class BigInt
     {
         const int blockLength = 9;
-        static int w, k, mu;// w = nr of bytes in each block of length blockLength, k = 2^(max number of bits in block)
+        static int w, k;// w = nr of bytes in each block of length blockLength, k = 2^(max number of bits in block)
+        static BigInt mu;
 
         public bool Sign { get; set; }
         public byte[] Value { get; set; }
+
+        public static BigInt One = new("1");
+        public static BigInt Zero = new("0");
+        public static BigInt Ten = new("10");
 
         public BigInt(string? input)
         {
@@ -169,7 +173,7 @@ namespace BigIntegerOperations
                 {
                     m++;
                 }
-                Console.WriteLine("m = " + m);
+                //Console.WriteLine("m = " + m);
                 byte[] vect = new byte[C.Value.Length];
                 Array.Copy(C.Value, m, vect, 0, C.Value.Length - m);
                 Array.Resize(ref vect, C.Value.Length - m);
@@ -217,72 +221,79 @@ namespace BigIntegerOperations
             return new BigInt(C.Sign, vect);
         }
 
-        public static bool operator <(BigInt A, BigInt B)
+        ///<summary>
+        ///Returns  0 if equal, -1 if A less than B, 1 if A greater than B
+        ///</summary> 
+        static int Compare(BigInt A, BigInt B)
         {
             if (!A.Sign && B.Sign || A.Value.Length > B.Value.Length)
             {
-                return false;
+                return 1;
             }
+
             if (A.Sign && !B.Sign || A.Value.Length < B.Value.Length)
             {
-                return true;
+                return -1;
             }
 
-            if (!A.Sign)
+            for (int i = 0; i < A.Value.Length; i++)
             {
-                for (int i = 0; i < A.Value.Length; i++)
+                if (A.Value[i] > B.Value[i])
                 {
-                    if (A.Value[i] > B.Value[i])
-                    {
-                        return false;
-                    }
-                    if (A.Value[i] < B.Value[i])
-                    {
-                        return true;
-                    }
+                    return A.Sign ? -1 : 1;
                 }
-            }
-            else
-            {
-                for (int i = 0; i < A.Value.Length; i++)
+                if (A.Value[i] < B.Value[i])
                 {
-                    if (A.Value[i] > B.Value[i])
-                    {
-                        return true;
-                    }
-                    if (A.Value[i] < B.Value[i])
-                    {
-                        return false;
-                    }
+                    return A.Sign ? 1 : -1;
                 }
             }
 
-
-            return false;
+            return 0;
         }
-
-        //make function to return index where there's difference or -1 if equal
-
+        public static bool operator <(BigInt A, BigInt B)
+        {
+            return Compare(A, B) == -1;
+        }
         public static bool operator <=(BigInt A, BigInt B)
         {
-            //Array.Copy(array, startIndex, array, startIndex, array.Length - startIndex); and give this to <
+            int comparison = Compare(A, B);
+            return comparison == 0 || comparison == -1;
         }
-
         public static bool operator >(BigInt A, BigInt B)
         {
             return !(A <= B);
         }
+        public static bool operator >=(BigInt A, BigInt B)
+        {
+            return !(A < B);
+        }
 
+        public static BigInt operator -(BigInt A, BigInt B)
+        {
+            BigInt Aux = new BigInt(B.Sign, B.Value);
+            Aux.Sign = !Aux.Sign;
+            return A + Aux;
+        }
 
         public static BigInt operator /(BigInt A, BigInt B)
         {
-            BigInt C = new BigInt("0");
+            BigInt C = Zero;
+            BigInt R = Zero;
 
-            BigInt R = A;
-
-            while (R >= B)
+            int index = 0;
+            while (index < A.Value.Length)
             {
+                R = R * Ten + new BigInt(A.Value[index].ToString());
 
+                BigInt div = Zero;
+                while (R >= B)
+                {
+                    R = R - B;
+                    div += One;
+                }
+
+                C = C * Ten + div;
+                index++;
             }
 
             return C;
@@ -291,7 +302,7 @@ namespace BigIntegerOperations
         //eventually test with BigInteger.Divide
         //public static BigInt operator %(BigInt A, BigInt B)
         //{
-        //    mu = new BigInt(k + "") / B;
+        //    mu = new BigInt(k.ToString()) / B;
 
         //    for (int i = 0; i < A.Value.Length; i += blockLength)
         //    {
