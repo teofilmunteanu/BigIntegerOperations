@@ -114,7 +114,7 @@ namespace BigIntegerOperations
                 {
                     int k = 0;
 
-                    while (k < X.Length && X[k] == Y[k] )
+                    while (k < X.Length && X[k] == Y[k])
                     {
                         k++;
                     }
@@ -128,7 +128,8 @@ namespace BigIntegerOperations
                         {
                             C.Sign = B.Sign;
                         }
-                    }else
+                    }
+                    else
                     {
                         byte[] zero = new byte[1];
                         zero[0] = 0;
@@ -309,19 +310,28 @@ namespace BigIntegerOperations
             return C;
         }
 
-        //eventually test with BigInteger.Divide
-        //public static BigInt operator %(BigInt A, BigInt B)
-        //{
-        //    mu = new BigInt(k.ToString()) / B;
+        public static BigInt operator %(BigInt A, BigInt B)
+        {
+            BigInt C = Zero;
+            BigInt R = Zero;
 
-        //    for (int i = 0; i < A.Value.Length; i += blockLength)
-        //    {
-        //        for (int j = i; j < i + blockLength && j < A.Value.Length; j++)
-        //        {
+            int index = 0;
+            while (index < A.Value.Length)
+            {
+                R = R * Ten + new BigInt(A.Value[index].ToString());
 
-        //        }
-        //    }
-        //}
+                BigInt div = Zero;
+                while (R >= B)
+                {
+                    R -= B;
+                    div += One;
+                }
+
+                index++;
+            }
+
+            return R;
+        }
 
         private void SetModuloConstants()
         {
