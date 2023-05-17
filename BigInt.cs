@@ -220,6 +220,10 @@ namespace BigIntegerOperations
             return new BigInt(C.Sign,vect);
         }
 
+        public BigInt PowModn(BigInt A, BigInt B, int n)
+        {
+
+        }
 
         public void Show()
         {
