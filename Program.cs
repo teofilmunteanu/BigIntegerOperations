@@ -19,14 +19,15 @@ for (int i = 0; i < yDigits; i++)
 
 Console.WriteLine(xs + "\n" + ys + "\n");
 
-BigInt x = new BigInt(xs);
-BigInt y = new BigInt(ys);
-
+BigInt x = new BigInt("-223");
+BigInt y = new BigInt("3");
+BigInt n = new BigInt("15");
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 
-BigInt z = x % y;
+BigInt z = BigInt.PowModN(x, y, n);
 z.Show();
+Console.WriteLine(z.Sign);
 
 stopwatch.Stop();
 Console.WriteLine("\nElapsed Time: " + stopwatch.ElapsedMilliseconds);

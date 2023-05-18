@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
@@ -338,6 +339,38 @@ namespace BigIntegerOperations
             int bitsRequiredInBlock = 4 * blockLength;//4 = nr bits in decimal digit
             w = (bitsRequiredInBlock + 7) / 8;
             k = (int)Math.Pow(2, w * 8);
+        }
+
+        public static BigInt PowModN(BigInt A,BigInt b, BigInt n)
+        {
+
+            if (n == Zero) throw new ArgumentException("n should be >= 0");
+
+            if (b == Zero) return One;
+            BigInt I = A;
+            for(BigInt i = One; i < b; i += One)
+            {
+                A = A * I;
+                A = A % n;
+            }
+            if(A.Sign == true)
+            {
+                return A % n;
+            }
+            else return A % n;
+        }
+
+        public static BigInt Invers(BigInt A,BigInt mod)
+        {
+            if (mod == Zero) throw new ArgumentException("n should be >= 0");
+            if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
+            //if(BigInt.cmmdc(A, mod) == 1)
+                for(BigInt i = One; i < mod; i += One)
+                {
+                    if (((A % mod) * (i % mod)) % mod == One)
+                        return i;
+                }
+            //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
         }
 
         public void Show()
