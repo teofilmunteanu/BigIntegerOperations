@@ -4,10 +4,6 @@ namespace BigIntegerOperations
 {
     internal class BigInt
     {
-        const int blockLength = 9;
-        static int w, k;// w = nr of bytes in each block of length blockLength, k = 2^(max number of bits in block)
-        static BigInt mu;
-
         public bool Sign { get; set; }
         public byte[] Value { get; set; }
 
@@ -41,16 +37,12 @@ namespace BigIntegerOperations
 
             Value = new byte[input.Length - 1];
             Value = input.Select(x => (byte)(x - '0')).ToArray();
-
-            SetModuloConstants();
         }
 
         public BigInt(bool Sign, byte[] Value)
         {
             this.Sign = Sign;
             this.Value = Value;
-
-            SetModuloConstants();
         }
 
         public static BigInt operator +(BigInt A, BigInt B)
@@ -300,20 +292,28 @@ namespace BigIntegerOperations
             BigInt C = Zero;
             BigInt R = Zero;
 
+            BigInt B1 = new BigInt(false, B.Value);
+
             int index = 0;
             while (index < A.Value.Length)
             {
                 R = R * Ten + new BigInt(A.Value[index].ToString());
 
                 BigInt div = Zero;
-                while (R >= B)
+
+                while (R >= B1)
                 {
-                    R = R - B;
+                    R = R - B1;
                     div += One;
                 }
 
                 C = C * Ten + div;
                 index++;
+            }
+
+            if (A.Sign != B.Sign)
+            {
+                return new BigInt(true, C.Value);
             }
 
             return C;
@@ -329,28 +329,42 @@ namespace BigIntegerOperations
             BigInt R = Zero;
 
             int index = 0;
+
             while (index < A.Value.Length)
             {
-                R = R * Ten + new BigInt(A.Value[index].ToString());
-
-                BigInt div = Zero;
-                while (R >= B)
+                if (A.Sign)
                 {
-                    R -= B;
-                    div += One;
+                    R = R * Ten - new BigInt(A.Value[index].ToString());
+                }
+                else
+                {
+                    R = R * Ten + new BigInt(A.Value[index].ToString());
+                }
+
+                if (A.Sign)
+                {
+                    while (R <= new BigInt(true, B.Value))
+                    {
+                        R = R + B;
+                    }
+                }
+                else
+                {
+                    while (R >= B)
+                    {
+                        R = R - B;
+                    }
                 }
 
                 index++;
             }
 
-            return R;
-        }
+            if (R < Zero)
+            {
+                R = R + B;
+            }
 
-        private void SetModuloConstants()
-        {
-            int bitsRequiredInBlock = 4 * blockLength;//4 = nr bits in decimal digit
-            w = (bitsRequiredInBlock + 7) / 8;
-            k = (int)Math.Pow(2, w * 8);
+            return R;
         }
 
         public static BigInt PowModN(BigInt A, BigInt b, BigInt n)

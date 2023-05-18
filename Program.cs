@@ -19,8 +19,8 @@ for (int i = 0; i < yDigits; i++)
 
 Console.WriteLine(xs + "\n" + ys + "\n");
 
-BigInt x = new BigInt("-123");
-BigInt y = new BigInt("5");
+BigInt x = new BigInt("55435345");
+BigInt y = new BigInt("35345345");
 BigInt n = new BigInt("15");
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
