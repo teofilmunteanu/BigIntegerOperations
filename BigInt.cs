@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
@@ -238,15 +237,24 @@ namespace BigIntegerOperations
         ///</summary> 
         static int Compare(BigInt A, BigInt B)
         {
-            if (!A.Sign && B.Sign || A.Value.Length > B.Value.Length)
+            if (!A.Sign && B.Sign)
             {
                 return 1;
             }
-
-            if (A.Sign && !B.Sign || A.Value.Length < B.Value.Length)
+            if (A.Sign && !B.Sign)
             {
                 return -1;
             }
+
+            if (A.Value.Length > B.Value.Length)
+            {
+                return A.Sign ? -1 : 1;
+            }
+            if (A.Value.Length < B.Value.Length)
+            {
+                return A.Sign ? 1 : -1;
+            }
+
 
             for (int i = 0; i < A.Value.Length; i++)
             {
@@ -313,7 +321,11 @@ namespace BigIntegerOperations
 
         public static BigInt operator %(BigInt A, BigInt B)
         {
-            BigInt C = Zero;
+            if (B.Sign)
+            {
+                throw new ArithmeticException("Second argument must be non-negative");
+            }
+
             BigInt R = Zero;
 
             int index = 0;
@@ -341,37 +353,37 @@ namespace BigIntegerOperations
             k = (int)Math.Pow(2, w * 8);
         }
 
-        public static BigInt PowModN(BigInt A,BigInt b, BigInt n)
+        public static BigInt PowModN(BigInt A, BigInt b, BigInt n)
         {
 
             if (n == Zero) throw new ArgumentException("n should be >= 0");
 
             if (b == Zero) return One;
             BigInt I = A;
-            for(BigInt i = One; i < b; i += One)
+            for (BigInt i = One; i < b; i += One)
             {
                 A = A * I;
                 A = A % n;
             }
-            if(A.Sign == true)
+            if (A.Sign == true)
             {
                 return A % n;
             }
             else return A % n;
         }
 
-        public static BigInt Invers(BigInt A,BigInt mod)
-        {
-            if (mod == Zero) throw new ArgumentException("n should be >= 0");
-            if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-            //if(BigInt.cmmdc(A, mod) == 1)
-                for(BigInt i = One; i < mod; i += One)
-                {
-                    if (((A % mod) * (i % mod)) % mod == One)
-                        return i;
-                }
-            //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
-        }
+        //public static BigInt Invers(BigInt A,BigInt mod)
+        //{
+        //    if (mod == Zero) throw new ArgumentException("n should be >= 0");
+        //    if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
+        //    //if(BigInt.cmmdc(A, mod) == 1)
+        //        for(BigInt i = One; i < mod; i += One)
+        //        {
+        //            if (((A % mod) * (i % mod)) % mod == One)
+        //                return i;
+        //        }
+        //    //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
+        //}
 
         public void Show()
         {
