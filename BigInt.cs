@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
@@ -393,18 +394,47 @@ namespace BigIntegerOperations
             return A % n;
         }
 
-        //public static BigInt Invers(BigInt A,BigInt mod)
-        //{
-        //    if (mod == Zero) throw new ArgumentException("n should be >= 0");
-        //    if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-        //    //if(BigInt.cmmdc(A, mod) == 1)
-        //        for(BigInt i = One; i < mod; i += One)
-        //        {
-        //            if (((A % mod) * (i % mod)) % mod == One)
-        //                return i;
-        //        }
-        //    //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
-        //}
+        public struct vars
+        {
+            public BigInt u;
+            public BigInt v;
+        }
+        public struct divizor
+        {
+            public vars uv;
+            public BigInt d;
+        }
+
+        public static divizor gdcExtended(BigInt A,BigInt B)
+        {
+            BigInt r, q;
+            BigInt aux;
+            vars Xa , Xb ;
+            Xa.u = One;
+            Xa.v = Zero;
+            Xb.u = Zero;
+            Xb.v = One;
+            divizor cmmdc;
+            do
+            {
+                r = A % B;
+                q = A / B;
+                aux = Xb.u;
+                Xb.u = Xa.u - q * Xb.u;
+                Xa.u = aux;
+                aux = Xb.v;
+                Xb.v = Xa.v - q * Xb.v;
+                Xa.v = aux;
+                A = B;
+                B = r;
+            } while (r != Zero);
+            cmmdc.d = A;
+            cmmdc.uv.u = Xa.u;
+            cmmdc.uv.v = Xb.u;
+            return cmmdc;
+
+        }
+
 
         public static BigInt cmmdc(BigInt A, BigInt B)
         {
@@ -432,20 +462,15 @@ namespace BigIntegerOperations
         {
             if (mod == Zero) throw new ArgumentException("n should be >= 0");
             if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-
-            if (cmmdc(A, mod) == One)
+            divizor X = BigInt.gdcExtended(A,mod);
+            if (cmmdc(A, mod) != One)
             {
-                for (BigInt i = One; i < mod; i += One)
-                {
-                    if (((A % mod) * (i % mod)) % mod == One)
-                        return i;
-                }
 
                 throw new ArgumentException("No inverse");
             }
             else
             {
-                throw new ArgumentException("numbers cannnot have cmmdc != 1");
+                return (X.uv.u + mod) % mod;
             }
         }
 

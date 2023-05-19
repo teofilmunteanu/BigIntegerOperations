@@ -19,14 +19,14 @@ for (int i = 0; i < yDigits; i++)
 
 Console.WriteLine(xs + "\n" + ys + "\n");
 
-BigInt x = new BigInt("205770582627247437");
-BigInt y = new BigInt("83521412342344523451");
-BigInt n = new BigInt("5345");
+BigInt x = new BigInt("19");
+BigInt y = new BigInt("7");
+BigInt n = new BigInt("30");
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 
 //BigInt z = BigInt.PowModN(x, y, n);
-BigInt z = BigInt.SqrtModN(y, n);
+BigInt z = BigInt.Inverse(y, n);
 z.Show();
 
 
