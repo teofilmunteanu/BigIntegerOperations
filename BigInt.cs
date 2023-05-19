@@ -1,18 +1,14 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
     internal class BigInt
     {
-        const int blockLength = 9;
-        static int w, k;// w = nr of bytes in each block of length blockLength, k = 2^(max number of bits in block)
-        static BigInt mu;
-
         public bool Sign { get; set; }
         public byte[] Value { get; set; }
 
         public static BigInt One = new("1");
+        public static BigInt Two = new("2");
         public static BigInt Zero = new("0");
         public static BigInt Ten = new("10");
 
@@ -42,16 +38,12 @@ namespace BigIntegerOperations
 
             Value = new byte[input.Length - 1];
             Value = input.Select(x => (byte)(x - '0')).ToArray();
-
-            SetModuloConstants();
         }
 
         public BigInt(bool Sign, byte[] Value)
         {
             this.Sign = Sign;
             this.Value = Value;
-
-            SetModuloConstants();
         }
 
         public static BigInt operator +(BigInt A, BigInt B)
@@ -238,15 +230,24 @@ namespace BigIntegerOperations
         ///</summary> 
         static int Compare(BigInt A, BigInt B)
         {
-            if (!A.Sign && B.Sign || A.Value.Length > B.Value.Length)
+            if (!A.Sign && B.Sign)
             {
                 return 1;
             }
-
-            if (A.Sign && !B.Sign || A.Value.Length < B.Value.Length)
+            if (A.Sign && !B.Sign)
             {
                 return -1;
             }
+
+            if (A.Value.Length > B.Value.Length)
+            {
+                return A.Sign ? -1 : 1;
+            }
+            if (A.Value.Length < B.Value.Length)
+            {
+                return A.Sign ? 1 : -1;
+            }
+
 
             for (int i = 0; i < A.Value.Length; i++)
             {
@@ -262,6 +263,16 @@ namespace BigIntegerOperations
 
             return 0;
         }
+
+        public static bool operator ==(BigInt A, BigInt B)
+        {
+            return Compare(A, B) == 0;
+        }
+        public static bool operator !=(BigInt A, BigInt B)
+        {
+            return Compare(A, B) != 0;
+        }
+
         public static bool operator <(BigInt A, BigInt B)
         {
             return Compare(A, B) == -1;
@@ -292,15 +303,18 @@ namespace BigIntegerOperations
             BigInt C = Zero;
             BigInt R = Zero;
 
+            BigInt B1 = new BigInt(false, B.Value);
+
             int index = 0;
             while (index < A.Value.Length)
             {
                 R = R * Ten + new BigInt(A.Value[index].ToString());
 
                 BigInt div = Zero;
-                while (R >= B)
+
+                while (R >= B1)
                 {
-                    R = R - B;
+                    R = R - B1;
                     div += One;
                 }
 
@@ -308,47 +322,70 @@ namespace BigIntegerOperations
                 index++;
             }
 
+            if (A.Sign != B.Sign)
+            {
+                return new BigInt(true, C.Value);
+            }
+
             return C;
         }
 
         public static BigInt operator %(BigInt A, BigInt B)
         {
-            BigInt C = Zero;
+            if (B.Sign)
+            {
+                throw new ArithmeticException("Second argument must be non-negative");
+            }
+
             BigInt R = Zero;
 
             int index = 0;
+
             while (index < A.Value.Length)
             {
-                R = R * Ten + new BigInt(A.Value[index].ToString());
-
-                BigInt div = Zero;
-                while (R >= B)
+                if (A.Sign)
                 {
-                    R -= B;
-                    div += One;
+                    R = R * Ten - new BigInt(A.Value[index].ToString());
+                }
+                else
+                {
+                    R = R * Ten + new BigInt(A.Value[index].ToString());
+                }
+
+                if (A.Sign)
+                {
+                    while (R <= new BigInt(true, B.Value))
+                    {
+                        R = R + B;
+                    }
+                }
+                else
+                {
+                    while (R >= B)
+                    {
+                        R = R - B;
+                    }
                 }
 
                 index++;
             }
 
+            if (R < Zero)
+            {
+                R = R + B;
+            }
+
             return R;
         }
 
-        private void SetModuloConstants()
-        {
-            int bitsRequiredInBlock = 4 * blockLength;//4 = nr bits in decimal digit
-            w = (bitsRequiredInBlock + 7) / 8;
-            k = (int)Math.Pow(2, w * 8);
-        }
-
-        public static BigInt PowModN(BigInt A,BigInt b, BigInt n)
+        public static BigInt PowModN(BigInt A, BigInt b, BigInt n)
         {
 
             if (n == Zero) throw new ArgumentException("n should be >= 0");
 
             if (b == Zero) return One;
             BigInt I = A;
-            for(BigInt i = One; i < b; i += One)
+            for (BigInt i = One; i < b; i += One)
             {
                 A = A * I;
                 A = A % n;
@@ -368,6 +405,119 @@ namespace BigIntegerOperations
         //        }
         //    //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
         //}
+
+        public static BigInt cmmdc(BigInt A, BigInt B)
+        {
+            BigInt A1 = new BigInt(A.Sign, A.Value);
+            BigInt B1 = new BigInt(B.Sign, B.Value);
+
+            if (A == Zero || B == Zero)
+            {
+                return A + B;
+            }
+
+            BigInt R = A1 % B1;
+
+            while (R != Zero)
+            {
+                R = A1 % B1;
+                A1 = B1;
+                B1 = R;
+            }
+
+            return A1;
+        }
+
+        public static BigInt Inverse(BigInt A, BigInt mod)
+        {
+            if (mod == Zero) throw new ArgumentException("n should be >= 0");
+            if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
+
+            if (cmmdc(A, mod) == One)
+            {
+                for (BigInt i = One; i < mod; i += One)
+                {
+                    if (((A % mod) * (i % mod)) % mod == One)
+                        return i;
+                }
+
+                throw new ArgumentException("No inverse");
+            }
+            else
+            {
+                throw new ArgumentException("numbers cannnot have cmmdc != 1");
+            }
+        }
+
+        public static BigInt Opposite(BigInt A, BigInt mod)
+        {
+            if (A == Zero)
+                return Zero;
+
+            return (mod - A) % mod;
+        }
+
+        public static BigInt Pow(BigInt A, int b)
+        {
+            if (b == 0) return One;
+            BigInt I = A;
+            for (int i = 1; i < b; i++)
+            {
+                A = A * I;
+            }
+
+            return A;
+        }
+
+        public static BigInt operator <<(BigInt A, int shift)
+        {
+            return A * Pow(Two, shift);
+        }
+
+        public static BigInt operator >>(BigInt A, int shift)
+        {
+            return A / Pow(Two, shift);
+        }
+
+        public static BigInt SqrtModN(BigInt A, BigInt mod)
+        {
+            if (A < Zero)
+            {
+                throw new ArithmeticException("Number must be non-negative.");
+            }
+
+            if (A < Two)
+            {
+                return A;
+            }
+
+            BigInt A1 = new BigInt(false, A.Value);
+
+            BigInt root = Zero;
+            BigInt maxBit = One << 254;
+
+            while (maxBit > A1)
+            {
+                maxBit >>= 2;
+            }
+
+            while (maxBit != Zero)
+            {
+                if (A1 >= root + maxBit)
+                {
+                    A1 -= root + maxBit;
+                    root = (root >> 1) + maxBit;
+                }
+                else
+                {
+                    root >>= 1;
+                }
+
+                maxBit >>= 2;
+            }
+
+            return root % mod;
+        }
 
         public void Show()
         {
