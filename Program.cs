@@ -25,7 +25,7 @@ BigInt n = new BigInt("15");
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 
-BigInt z = BigInt.PowModN(x, y, n);
+BigInt z = x % y;
 z.Show();
 Console.WriteLine(z.Sign);
 

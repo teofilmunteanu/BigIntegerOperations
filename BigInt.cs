@@ -353,25 +353,21 @@ namespace BigIntegerOperations
                 A = A * I;
                 A = A % n;
             }
-            if(A.Sign == true)
-            {
-                return A % n;
-            }
-            else return A % n;
+            return A % n;
         }
 
-        public static BigInt Invers(BigInt A,BigInt mod)
-        {
-            if (mod == Zero) throw new ArgumentException("n should be >= 0");
-            if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-            //if(BigInt.cmmdc(A, mod) == 1)
-                for(BigInt i = One; i < mod; i += One)
-                {
-                    if (((A % mod) * (i % mod)) % mod == One)
-                        return i;
-                }
-            //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
-        }
+        //public static BigInt Invers(BigInt A,BigInt mod)
+        //{
+        //    if (mod == Zero) throw new ArgumentException("n should be >= 0");
+        //    if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
+        //    //if(BigInt.cmmdc(A, mod) == 1)
+        //        for(BigInt i = One; i < mod; i += One)
+        //        {
+        //            if (((A % mod) * (i % mod)) % mod == One)
+        //                return i;
+        //        }
+        //    //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
+        //}
 
         public void Show()
         {
