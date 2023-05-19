@@ -19,15 +19,17 @@ for (int i = 0; i < yDigits; i++)
 
 Console.WriteLine(xs + "\n" + ys + "\n");
 
-BigInt x = new BigInt("55435345");
-BigInt y = new BigInt("35345345");
-BigInt n = new BigInt("15");
+BigInt x = new BigInt("205770582627247437");
+BigInt y = new BigInt("83521412342344523451");
+BigInt n = new BigInt("5345");
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 
 //BigInt z = BigInt.PowModN(x, y, n);
-BigInt z = x % y;
-z.Show(); Console.WriteLine();
+BigInt z = BigInt.SqrtModN(y, n);
+z.Show();
+
+
 
 //string xSign = x.Sign ? "-" : "";
 //string ySign = y.Sign ? "-" : "";
@@ -36,6 +38,5 @@ z.Show(); Console.WriteLine();
 //Console.Write("<");
 //y.Show();
 //Console.Write(" => " + (x < y));
-
 stopwatch.Stop();
 Console.WriteLine("\nElapsed Time: " + stopwatch.ElapsedMilliseconds);

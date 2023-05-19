@@ -8,6 +8,7 @@ namespace BigIntegerOperations
         public byte[] Value { get; set; }
 
         public static BigInt One = new("1");
+        public static BigInt Two = new("2");
         public static BigInt Zero = new("0");
         public static BigInt Ten = new("10");
 
@@ -262,6 +263,16 @@ namespace BigIntegerOperations
 
             return 0;
         }
+
+        public static bool operator ==(BigInt A, BigInt B)
+        {
+            return Compare(A, B) == 0;
+        }
+        public static bool operator !=(BigInt A, BigInt B)
+        {
+            return Compare(A, B) != 0;
+        }
+
         public static bool operator <(BigInt A, BigInt B)
         {
             return Compare(A, B) == -1;
@@ -379,25 +390,122 @@ namespace BigIntegerOperations
                 A = A * I;
                 A = A % n;
             }
-            if (A.Sign == true)
-            {
-                return A % n;
-            }
-            else return A % n;
+
+            return A % n;
         }
 
-        //public static BigInt Invers(BigInt A,BigInt mod)
-        //{
-        //    if (mod == Zero) throw new ArgumentException("n should be >= 0");
-        //    if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-        //    //if(BigInt.cmmdc(A, mod) == 1)
-        //        for(BigInt i = One; i < mod; i += One)
-        //        {
-        //            if (((A % mod) * (i % mod)) % mod == One)
-        //                return i;
-        //        }
-        //    //else throw new ArgumentException("numbers cannnot have cmmdc != 1")
-        //}
+        public static BigInt cmmdc(BigInt A, BigInt B)
+        {
+            BigInt A1 = new BigInt(A.Sign, A.Value);
+            BigInt B1 = new BigInt(B.Sign, B.Value);
+
+            if (A == Zero || B == Zero)
+            {
+                return A + B;
+            }
+
+            BigInt R = A1 % B1;
+
+            while (R != Zero)
+            {
+                R = A1 % B1;
+                A1 = B1;
+                B1 = R;
+            }
+
+            return A1;
+        }
+
+        public static BigInt Inverse(BigInt A, BigInt mod)
+        {
+            if (mod == Zero) throw new ArgumentException("n should be >= 0");
+            if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
+
+            if (cmmdc(A, mod) == One)
+            {
+                for (BigInt i = One; i < mod; i += One)
+                {
+                    if (((A % mod) * (i % mod)) % mod == One)
+                        return i;
+                }
+
+                throw new ArgumentException("No inverse");
+            }
+            else
+            {
+                throw new ArgumentException("numbers cannnot have cmmdc != 1");
+            }
+        }
+
+        public static BigInt Opposite(BigInt A, BigInt mod)
+        {
+            if (A == Zero)
+                return Zero;
+
+            return (mod - A) % mod;
+        }
+
+        public static BigInt Pow(BigInt A, int b)
+        {
+            if (b == 0) return One;
+            BigInt I = A;
+            for (int i = 1; i < b; i++)
+            {
+                A = A * I;
+            }
+
+            return A;
+        }
+
+        public static BigInt operator <<(BigInt A, int shift)
+        {
+            return A * Pow(Two, shift);
+        }
+
+        public static BigInt operator >>(BigInt A, int shift)
+        {
+            return A / Pow(Two, shift);
+        }
+
+        public static BigInt SqrtModN(BigInt A, BigInt mod)
+        {
+            if (A < Zero)
+            {
+                throw new ArithmeticException("Number must be non-negative.");
+            }
+
+            if (A < Two)
+            {
+                return A;
+            }
+
+            BigInt A1 = new BigInt(false, A.Value);
+
+            BigInt root = Zero;
+            BigInt maxBit = One << 254;
+
+            while (maxBit > A1)
+            {
+                maxBit >>= 2;
+            }
+
+            while (maxBit != Zero)
+            {
+                if (A1 >= root + maxBit)
+                {
+                    A1 -= root + maxBit;
+                    root = (root >> 1) + maxBit;
+                }
+                else
+                {
+                    root >>= 1;
+                }
+
+                maxBit >>= 2;
+            }
+
+            return root % mod;
+        }
 
         public void Show()
         {
