@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace BigIntegerOperations
 {
@@ -231,6 +230,10 @@ namespace BigIntegerOperations
         ///</summary> 
         static int Compare(BigInt A, BigInt B)
         {
+            if (A is null && B is null)
+            {
+                return 0;
+            }
             if (!A.Sign && B.Sign)
             {
                 return 1;
@@ -405,11 +408,11 @@ namespace BigIntegerOperations
             public BigInt d;
         }
 
-        public static divizor gdcExtended(BigInt A,BigInt B)
+        public static divizor gdcExtended(BigInt A, BigInt B)
         {
             BigInt r, q;
             BigInt aux;
-            vars Xa , Xb ;
+            vars Xa, Xb;
             Xa.u = One;
             Xa.v = Zero;
             Xb.u = Zero;
@@ -462,7 +465,7 @@ namespace BigIntegerOperations
         {
             if (mod == Zero) throw new ArgumentException("n should be >= 0");
             if (A == Zero) throw new ArgumentException("Zero has no inverse in mod n");
-            divizor X = BigInt.gdcExtended(A,mod);
+            divizor X = BigInt.gdcExtended(A, mod);
             if (cmmdc(A, mod) != One)
             {
 
