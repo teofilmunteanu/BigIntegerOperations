@@ -26,6 +26,10 @@ BigInt m1 = new BigInt("30");
 BigInt x3 = new BigInt("2345234564356456");
 BigInt m3 = new BigInt("234523456435645");
 
+BigInt x4 = new BigInt(xs);
+BigInt y4 = new BigInt("23452");
+BigInt m4 = new BigInt(ys);
+
 Stopwatch stopwatch = new Stopwatch();
 stopwatch.Start();
 
@@ -33,7 +37,7 @@ ShowOperationExample("addition", x0, y0, null);
 ShowOperationExample("subtraction", x0, y0, null);
 ShowOperationExample("modulo", x0, y0, null);
 ShowOperationExample("sqrtMod", x0, null, y0);
-ShowOperationExample("powMod", x1, y1, m1);
+ShowOperationExample("powMod", x4, y4, m4);
 ShowOperationExample("cmmdc", x0, y0, null);
 ShowOperationExample("inverse", x3, null, m3);
 ShowOperationExample("opposite", x0, null, m0);

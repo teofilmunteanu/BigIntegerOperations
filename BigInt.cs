@@ -389,12 +389,28 @@ namespace BigIntegerOperations
 
             if (b == Zero) return One;
             BigInt I = A;
-            for (BigInt i = One; i < b; i += One)
+            BigInt b1 = b;
+            BigInt Res = One;
+            do
             {
-                A = A * I;
-                A = A % n;
-            }
-            return A % n;
+                if (b1 % Two == One)
+                {
+                    Res *= I;
+                    Res %= n;
+                }
+                I = (I * I) % n;
+                b1 /= Two;
+
+            } while (b1 != One);
+
+            return Res * I % n;
+            //for (BigInt i = One; i < b; i += One)
+            //{
+            //    A = A * I;
+            //    A = A % n;
+            //}
+            //return A % n;
+
         }
 
         public struct vars
@@ -544,7 +560,7 @@ namespace BigIntegerOperations
                 maxBit >>= 2;
             }
 
-            return root % mod;
+            return root;// % mod;
         }
 
         public void Show()
