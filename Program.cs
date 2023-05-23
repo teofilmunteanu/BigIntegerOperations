@@ -27,7 +27,7 @@ BigInt x3 = new BigInt("2345234564356456");
 BigInt m3 = new BigInt("234523456435645");
 
 BigInt x4 = new BigInt(xs);
-BigInt y4 = new BigInt("23452");
+BigInt y4 = new BigInt("233355");
 BigInt m4 = new BigInt(ys);
 
 Stopwatch stopwatch = new Stopwatch();
